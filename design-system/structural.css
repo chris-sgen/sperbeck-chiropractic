@@ -196,7 +196,7 @@ p { color: var(--ds-ink-soft); }
   -webkit-text-fill-color: transparent; color: transparent;
 }
 .stat {
-  font-family: var(--ds-font-display); font-size: clamp(42px, 6vw, 80px); font-weight: 800; line-height: .92; letter-spacing: -.035em;
+  font-family: var(--ds-font-display); font-size: clamp(42px, 6vw, 80px); font-weight: 800; line-height: 1; letter-spacing: -.035em;
   font-variant-numeric: tabular-nums;
   background: linear-gradient(120deg, var(--ds-ink), var(--ds-ink-soft)); -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
