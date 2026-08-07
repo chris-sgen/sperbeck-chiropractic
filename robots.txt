@@ -1,0 +1,14 @@
+# REVIEW PREVIEW - not the production site.
+#
+# Indexing is disallowed deliberately. This deployment is a duplicate of a live practice's website
+# published for review only, and it carries facts the practice has not yet confirmed (the insurance
+# carrier list and the Medicare position are third-party research, not practice records). Allowing it
+# to be indexed would compete with the practice's real site and could surface unconfirmed claims.
+#
+# Replace this file at production launch with the real policy, and regenerate sitemap.xml against the
+# production host.
+
+User-agent: *
+Disallow: /
+
+Sitemap: https://chris-sgen.github.io/sperbeck-chiropractic/sitemap.xml
