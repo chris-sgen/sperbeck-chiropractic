@@ -2931,4 +2931,17 @@ p { color: var(--ds-ink-soft); }
    changes the inline axis only. */
 @media (max-width: 600px) {
   .sec .col--measure { padding-inline: 0; }
+  /* The T-PRICING and T-CONTACT "ONE MEASURE" grafts apply the same inset on the ROW instead of on
+     the column, so they need the same release or those two types keep the double inset. Caught by
+     probing the LIVE page rather than the local audit: contact still measured a 36px edge while the
+     other seven pages read 20px. */
+  .prc-open > .container > .row,
+  .prc-plans > .container > .row,
+  .prc-costs > .container > .row,
+  .prc-offer-sec > .container > .row,
+  .prc-ask > .container > .row,
+  .cnt-open > .container > .row,
+  .cnt-reach > .container > .row,
+  .cnt-where > .container > .row,
+  .cnt-after-sec > .container > .row { padding-inline: 0; }
 }
