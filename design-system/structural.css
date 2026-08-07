@@ -2874,3 +2874,44 @@ p { color: var(--ds-ink-soft); }
 .hub-actions + .stat, .mrq-actions + .stat, .prc-actions + .stat {
   margin-block-start: clamp(24px, 3vw, 40px);
 }
+
+/* (6) INTRA-SECTION VERTICAL RHYTHM — the missing one.
+   `.row` is a transparent pass-through with no margin, and h2/h3 carry `margin: 0`. The section
+   token only pads the OUTER edges, so anything the DOM grammar splits across sibling ROWS stacked
+   with EXACTLY ZERO space between it. Measured on a live band before this rule:
+       arc -> heading 0px | heading -> card grid 0px | card grid -> closing paragraph 0px
+   which is why headings sat jammed under the arc curve and hard against the cards beneath them, on
+   every multi-row section of every page. It read as text being cut off by the arc and crowding the
+   cards, because visually that is what zero space looks like.
+   WHY THIS IS SAFE FOR G-CADENCE: verify-section-rhythm measures the SECTION's leading/trailing to
+   the outermost layout object (it reports the section padding, 112/61/45). These rules only ever add
+   space BETWEEN siblings — the `+` combinator excludes the first child, and nothing here touches the
+   last child's bottom — so the leading and trailing edges are untouched and the cadence still reads
+   padding == padding. Verified by re-running the gate after the change, not assumed. */
+.sec > .container > .row + .row,
+.sec > .container--full > .row + .row {
+  margin-block-start: clamp(26px, 3vw, 40px);
+}
+/* EXCEPT a row that exists only to carry structured data. contact / faq / sciatica each wrap their
+   JSON-LD block in the DOM grammar, which produces a ZERO-HEIGHT trailing row: it renders nothing,
+   so G-CADENCE's visibility filter ignores it when finding the last visible object, but the row is
+   still in flow and still takes the rhythm margin above. The result is a section that grows 40px
+   taller at the bottom while its last VISIBLE object stays put — i.e. trailing 152 against leading
+   112, which is exactly the asymmetry that gate exists to catch. Caught by running the gate after
+   the change; my assumption that inter-row margins could not disturb the section edges was wrong,
+   and this is the case that disproves it. Metadata carries no rhythm. */
+.sec > .container > .row:has(> .col > script),
+.sec > .container--full > .row:has(> .col > script) {
+  margin-block-start: 0;
+}
+/* the arc band is a full-bleed tonal transition; the content that follows it needs real air, or the
+   first heading collides with the curve. */
+.sec > .container--full + .container,
+.sec > .container--full + .container--full {
+  margin-block-start: clamp(26px, 3vw, 40px);
+}
+/* a heading followed INSIDE its own column by a boxed object that carries no margin of its own
+   (.card, figure, dl, the ruled lists). Paragraphs are excluded: they keep their own flow margin. */
+.col > :is(h1, h2, h3) + :is(div, figure, dl, table, ul, ol) {
+  margin-block-start: clamp(16px, 1.8vw, 24px);
+}
