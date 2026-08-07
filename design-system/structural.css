@@ -2915,3 +2915,20 @@ p { color: var(--ds-ink-soft); }
 .col > :is(h1, h2, h3) + :is(div, figure, dl, table, ul, ol) {
   margin-block-start: clamp(16px, 1.8vw, 24px);
 }
+
+/* (7) PHONE: ONE LEFT EDGE. `.col--measure` carries its own `padding-inline` so that, at desktop,
+   the reading column sits inset inside the 1120 measure while a card grid may run the full width —
+   a deliberate editorial contrast. On a PHONE there is no measure to sit inside: the section is
+   already only 20px from each edge, so that padding became a SECOND inset and nothing shared a left
+   edge. Measured at 375 before this rule:
+       heading / body text  left 36px      cards / figures  left 20px
+   i.e. every heading and paragraph was indented 16px relative to the cards beneath it, on 39 of the
+   40 pages. It also cost the reading column 32px of a 375px screen (303px of text against 335px of
+   card).
+   Dropping the inset at the phone tier aligns every top-level object in a section to the SAME 20px
+   gutter and hands those 32px back to the text. Scoped to the same <=600 breakpoint the grids
+   already collapse at, so the desktop measure is untouched. Vertical rhythm is unaffected — this
+   changes the inline axis only. */
+@media (max-width: 600px) {
+  .sec .col--measure { padding-inline: 0; }
+}
