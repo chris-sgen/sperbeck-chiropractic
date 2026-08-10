@@ -2945,3 +2945,55 @@ p { color: var(--ds-ink-soft); }
   .cnt-where > .container > .row,
   .cnt-after-sec > .container > .row { padding-inline: 0; }
 }
+
+/* (8) THE PORTRAIT CAPTION belongs to the IMAGE, not to the column.
+   `.mrq-rating-note` after a portrait was inheriting the column's full width and start alignment, so
+   the name ran the whole 549px column while the photograph is only 320px wide — it read as a line of
+   text that happened to sit near a picture rather than as its caption. It also had margin-top 0, so
+   it touched the image (measured gap: 0px).
+   Constraining it to the PORTRAIT's own width makes "centred" mean centred under the image, without
+   moving the image itself. The width tracks the portrait at each breakpoint. */
+.mrq-portrait + .mrq-rating-note,
+.hub-portrait + .mrq-rating-note {
+  max-width: 320px;
+  text-align: center;
+  margin-block-start: 14px;
+}
+
+/* (9) THE STAT STRIP reads as one object, so it sits on the section's reading measure with the
+   heading above it rather than on the raw container edge (measured: heading at 192, stats at 160),
+   and the three figures sit at CONTENT width with a real gap instead of being pushed to the thirds
+   of a 1120 grid (160 / 541 / 921 — three short numerals stranded across the full band). */
+.mrq-where > .container > .row.grid:has(.stat) {
+  padding-inline: clamp(16px, 4vw, 32px);
+  grid-template-columns: repeat(3, max-content);
+  gap: clamp(32px, 6vw, 88px);
+  justify-content: start;
+}
+
+@media (max-width: 900px) {
+  .mrq-portrait + .mrq-rating-note,
+  .hub-portrait + .mrq-rating-note { max-width: 240px; }
+}
+
+@media (max-width: 600px) {
+  /* the stat strip centres on a phone, and drops back to the flush gutter */
+  .mrq-where > .container > .row.grid:has(.stat) {
+    padding-inline: 0;
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+  .mrq-where > .container > .row.grid:has(.stat) .col { text-align: center; }
+
+  /* (10) THE MARQUEE OPENER CENTRES ON A PHONE. At 375 the column is the full screen, so a
+     left-ragged eyebrow / crumb / button under a centred portrait reads as three different
+     alignments stacked. Centre the whole opener, including the flex objects, which do not follow
+     text-align on their own. */
+  .mrq-open .col { text-align: center; }
+  .mrq-open .mrq-crumb,
+  .mrq-open .mrq-actions { justify-content: center; }
+  .mrq-open .eyebrow { display: flex; justify-content: center; }
+  .mrq-open .mrq-portrait { margin-inline: auto; }
+  .mrq-open .lead { margin-inline: auto; }
+  .mrq-open .mrq-portrait + .mrq-rating-note { margin-inline: auto; }
+}
