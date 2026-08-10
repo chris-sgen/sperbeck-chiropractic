@@ -77,7 +77,10 @@ a { color: inherit; text-decoration: none; }
 }
 .surface-dark > * { position: relative; z-index: var(--ds-z-raised); }
 
-.sec  { padding: var(--ds-section-py) 24px; }
+/* --sec-pad-x is the band's horizontal gutter, published as a token so anything that needs to
+   BLEED past it (the band-edge arcs — see note 16) can cancel exactly the current value instead of
+   hardcoding a literal that silently drifts at a breakpoint. The <=600 rule below re-declares it. */
+.sec  { --sec-pad-x: 24px; padding: var(--ds-section-py) var(--sec-pad-x); }
 .wrap { max-width: var(--ds-container-max); margin-inline: auto; }
 .readw { max-width: 720px; }
 .sec--warm { background: var(--ds-bg-warm); }
@@ -700,7 +703,7 @@ p { color: var(--ds-ink-soft); }
   .bw-stat__n { font-size: clamp(40px,12vw,60px); }            /* in-section: stays LARGE on mobile */
   .bw-statband--big .bw-stat__n { font-size: clamp(44px,13vw,68px); }  /* anchor band: even larger */
 }
-@media (max-width: 600px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } .sec { padding: clamp(44px,12vw,72px) 20px; } }
+@media (max-width: 600px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } .sec { --sec-pad-x: 20px; padding: clamp(44px,12vw,72px) var(--sec-pad-x); } }
 
 /* ============================================================================
    STICKY-CTA COMPACT TREATMENT — the mobile fixed bottom CTA bar stays COMPACT.
@@ -3119,3 +3122,27 @@ p { color: var(--ds-ink-soft); }
    the figure itself stays put and only the subject moves. Two lifts stacked read as a wobble. */
 .hub-portrait.hover-zoom.u-lift:hover,
 .mrq-portrait.hover-zoom.u-lift:hover { transform: none; }
+
+/* (16) THE BAND-EDGE ARC IS SUPPOSED TO BE FULL-BLEED, AND WAS NOT.
+   Every arc sits at `.sec > .container--full > .row > .col > .*-arc`, and `.container--full`
+   correctly zeroes its own padding — but `.sec` pays `padding: var(--ds-section-py) 24px`, so the
+   arc's column is the section's CONTENT box: 24px narrower on each side than the band it divides.
+   The arc fills with a different tone from the band, so those 24px read as a lighter rectangle
+   with two hard vertical cuts at the top of the section, rather than as a sweep running edge to
+   edge. Visible on all 40 pages.
+   IT CANCELS THE TOKEN, NOT A LITERAL. The first cut of this rule hardcoded `-24px` and overflowed
+   the document by exactly 4px at 375 and 600, because `.sec` drops to 20px at <=600 and the literal
+   overshot. The gutter is now published as `--sec-pad-x` on `.sec` itself (re-declared in the <=600
+   rule), and the bleed is `calc(-1 * var(--sec-pad-x))`, so the two can no longer drift apart.
+   NEGATIVE MARGIN, NOT A VIEWPORT UNIT. A negative inline margin on a block child of a padded parent
+   grows the child to exactly the parent's BORDER box — the section's own full width — so it cannot
+   overflow the document. `100vw` would, by the width of the scrollbar, and this build already shed
+   one horizontal-overflow regression (note 14) caused by bleeding a decorative layer past its
+   parent. Scoped to the arc slot so the T-CONTACT form and the T-LEGAL documents, which also use
+   `.container--full`, keep their 24px gutter. */
+.sec > .container--full > .row > .col > .art-arc,
+.sec > .container--full > .row > .col > .cnt-arc,
+.sec > .container--full > .row > .col > .hub-arc,
+.sec > .container--full > .row > .col > .mrq-arc,
+.sec > .container--full > .row > .col > .prc-arc,
+.sec > .container--full > .row > .col > .svc-arc { margin-inline: calc(-1 * var(--sec-pad-x)); }
