@@ -37,7 +37,19 @@ body{margin:0;background:var(--ds-bg-surface);color:var(--ds-ink);
     flex-wrap:wrap}
   .utility a{color:var(--ds-accent-light)}
   .utility a:hover{color:var(--ds-ink-on-dark)}
-  .utility__left{display:flex;align-items:center;gap:14px;color:rgba(244,241,233,.72)}
+  /* KEYBOARD FOCUS RING (WCAG 2.4.7). The chrome sheet styled every interactive control — nav links,
+     the burger, drawer and mega links, the pill button — but shipped NO visible focus indicator, so a
+     keyboard, switch or screen-reader user could not see where focus was. Global painting rule first,
+     then the modern keyboard-only idiom that suppresses it for a mouse click. */
+  a:focus-visible, button:focus-visible, .btn:focus-visible, .btn-primary:focus-visible,
+  .nav-link:focus-visible, .burger:focus-visible,
+  input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{
+    outline:2px solid var(--ds-accent); outline-offset:2px; border-radius:2px}
+  a:focus:not(:focus-visible), button:focus:not(:focus-visible){outline:none}
+
+  /* the two spans are 10px uppercase and 12.5px sentence case; centring their BOXES leaves the text
+     baselines off, which is what reads as misaligned. Align the baselines instead. */
+  .utility__left{display:flex;align-items:baseline;gap:14px;color:rgba(244,241,233,.72)}
   .utility__right{display:flex;align-items:center;gap:18px}
   .u-flag{font-weight:700;letter-spacing:var(--ds-tracking-label);text-transform:uppercase;
     font-size:10px;color:var(--ds-accent-light)}
@@ -45,9 +57,15 @@ body{margin:0;background:var(--ds-bg-surface);color:var(--ds-ink);
   /* ---------- row 2 + 3: centred brand, then the link row ---------- */
   .site-header{position:sticky;top:0;z-index:var(--ds-z-sticky);
     background:var(--ds-bg-surface);border-bottom:1px solid var(--ds-line)}
+  /* ONE-LINE HEADER: brand hard left, nav centred in the space it leaves, actions hard right.
+     Was a stacked column (brand centred above the nav) with .hb-actions absolutely positioned out
+     of flow — three rows of chrome before any content. Now a single flex row, so the actions are
+     back IN flow and no longer need the absolute pin. */
   .hb-inner{position:relative;max-width:1340px;margin:0 auto;padding:var(--ds-space-md);
-    display:flex;flex-direction:column;align-items:center;gap:var(--ds-space-sm)}
-  .brand{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+    display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+    gap:var(--ds-space-md)}
+  .brand{display:flex;flex-direction:row;align-items:center;gap:12px;text-align:left;flex:0 0 auto}
+  .brand__wm small{margin-top:2px}
   .brand__mark{width:48px;height:48px;display:grid;place-items:center}
   .brand__wm{font-family:var(--ds-font-display);font-size:24px;line-height:1;
     letter-spacing:var(--ds-tracking-disp);color:var(--ds-ink-heading);white-space:nowrap}
@@ -55,16 +73,16 @@ body{margin:0;background:var(--ds-bg-surface);color:var(--ds-ink);
     letter-spacing:var(--ds-tracking-label);text-transform:uppercase;color:var(--ds-accent-ink);
     margin-top:6px}
 
-  .primary-nav{width:100%}
+  .primary-nav{flex:1 1 auto;min-width:0}
   .primary-nav .nav-list{display:flex;align-items:center;justify-content:center;
-    gap:var(--ds-space-md);list-style:none;margin:0;padding:0;flex-wrap:nowrap}
+    gap:clamp(12px, 1.6vw, var(--ds-space-md));list-style:none;margin:0;padding:0;flex-wrap:nowrap}
   .primary-nav .nav-link{font-size:14.5px;font-weight:600;color:var(--ds-ink);white-space:nowrap;
     padding:7px 4px;border-bottom:2px solid transparent;
     transition:color var(--ds-dur-fast) var(--ds-ease),border-color var(--ds-dur-fast) var(--ds-ease)}
   .primary-nav .nav-link:hover{color:var(--ds-accent-ink);border-bottom-color:var(--ds-accent)}
   .has-mega{position:relative}
 
-  .hb-actions{position:absolute;right:var(--ds-space-md);top:var(--ds-space-md)}
+  .hb-actions{position:static;flex:0 0 auto}
   .btn-primary{display:inline-flex;align-items:center;white-space:nowrap;font-size:14px;
     font-weight:700;padding:12px 20px;border-radius:var(--ds-r-pill);
     background:var(--ds-accent-deep);color:var(--ds-on-accent);
@@ -178,8 +196,17 @@ body{margin:0;background:var(--ds-bg-surface);color:var(--ds-ink);
   @media (max-width:1100px){
     .primary-nav{display:none}
     .burger{display:flex}
-    .hb-actions{right:calc(var(--ds-space-md) + 58px);top:50%;transform:translateY(-50%)}
-    .hb-inner{flex-direction:row;justify-content:center;min-height:72px;padding:var(--ds-space-sm) var(--ds-space-md)}
+    /* THE ACTIONS ARE IN FLOW NOW, AND SO IS THE BURGER. Making .hb-actions static while leaving
+       .burger on its original `position:absolute; right:var(--ds-space-md)` pin stacked the two on
+       top of each other: measured at 1024, .burger sat at x=954..1000 INSIDE .hb-actions at
+       x=837..1000, so the burger's hit area and its bars were painted over the bronze CTA pill.
+       The paint-stack walker caught it as button#burger on rgb(130,99,56) at 3.79:1 (needs 4.5) on
+       all 40 pages at 768 and 1024 - the contrast number was the SYMPTOM; the overlap was the bug.
+       Ordered so the burger stays the RIGHTMOST header control, which G-CHROME-PARITY requires. */
+    .brand{order:1;margin-inline-end:auto}
+    .hb-actions{position:static;transform:none;order:2}
+    .burger{position:static;transform:none;order:3;flex:0 0 auto}
+    .hb-inner{flex-direction:row;justify-content:flex-end;gap:var(--ds-space-sm);min-height:72px;padding:var(--ds-space-sm) var(--ds-space-md)}
     .brand__wm{font-size:19px}
     .brand{flex-direction:row;gap:10px}
     .brand__wm small{margin-top:3px}

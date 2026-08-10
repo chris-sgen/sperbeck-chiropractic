@@ -2929,6 +2929,36 @@ p { color: var(--ds-ink-soft); }
    gutter and hands those 32px back to the text. Scoped to the same <=600 breakpoint the grids
    already collapse at, so the desktop measure is untouched. Vertical rhythm is unaffected — this
    changes the inline axis only. */
+/* (11) THE HERO PORTRAIT FLOATS. It was a cropped 3:2 card — a rounded box with the photo cover-fit
+   inside it and the frame's own shadow. Now the image itself is the object: it fills its column,
+   keeps its own aspect rather than being cropped to the frame, and casts a soft drop shadow with no
+   card behind it, so it reads as lifted off the page rather than sitting in a tile.
+   ⚠ TRUE BACKGROUND CUTOUT IS NOT DONE — that needs image processing (fal), which is unavailable:
+   the MCP server is disconnected and .mcp.json still holds the placeholder FAL_KEY. This is the CSS
+   half only; the photo keeps its own background until a real key is configured. */
+.hub-portrait.hover-zoom.u-lift,
+.mrq-portrait.hover-zoom.u-lift {
+  aspect-ratio: auto;
+  border-radius: 0;
+  overflow: visible;
+  background: none;
+  box-shadow: none;
+  max-width: 100%;
+  width: 100%;
+}
+.hub-portrait.hover-zoom.u-lift img,
+.mrq-portrait.hover-zoom.u-lift img {
+  position: static;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0;
+  filter: drop-shadow(0 26px 38px rgba(20, 24, 19, .34)) drop-shadow(0 6px 12px rgba(20, 24, 19, .18));
+}
+/* the lift already carries the elevation; a second box-shadow on hover would fight the drop-shadow */
+.hub-portrait.hover-zoom.u-lift:hover,
+.mrq-portrait.hover-zoom.u-lift:hover { box-shadow: none; }
+
 @media (max-width: 600px) {
   .sec .col--measure { padding-inline: 0; }
   /* The T-PRICING and T-CONTACT "ONE MEASURE" grafts apply the same inset on the ROW instead of on
@@ -2997,3 +3027,95 @@ p { color: var(--ds-ink-soft); }
   .mrq-open .lead { margin-inline: auto; }
   .mrq-open .mrq-portrait + .mrq-rating-note { margin-inline: auto; }
 }
+
+/* (12) A MEASURED HEADING MUST SHARE ITS BAND'S LEFT EDGE.
+   `.col--measure` carries `padding-inline: clamp(16px,4vw,32px)` from the base layer, and the
+   gutter it was written to supply is ALREADY supplied one level up by `.sec { padding: … 24px }`.
+   Inside a capped `.container` that padding is therefore pure indent: the band's heading (which
+   always sits in `.col--measure`) started up to 32px to the RIGHT of the card row beneath it,
+   which is a sibling `.row.grid` whose `.col`s have no padding at all. On the home page that is
+   the "What patients say" heading floating inboard of its own three quote cards.
+   Scoped to the CAPPED container only. `.container--full` bands (the T-CONTACT form, the T-LEGAL
+   documents) keep the measure's padding because there the measure IS the reading column and has
+   no capped parent to align to. */
+.sec > .container > .row > .col--measure { padding-inline: 0; }
+
+/* (13) A GENERIC ACTION ROW. `.hub-actions` / `.mrq-actions` / `.prc-actions` are layer-bound and
+   a standalone CTA occurs on service, condition and offer pages alike, so borrowing one layer's
+   class onto another page is the wrong reach. This is the layer-free form, same geometry. */
+.u-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 0; }
+.u-actions:first-child { margin-block-start: 0; }
+.card .u-actions, .hub-card .u-actions { margin-block-start: 18px; }
+
+/* (14) THE "FIND YOUR PAIN" BAND CARRIES AN ATMOSPHERE, NOT A FLAT FILL.
+   ⚠ INTERIM. The owner asked for a generated background image here (fal). fal is UNAVAILABLE
+   this run - `.mcp.json` still holds the placeholder FAL_KEY - so no image was generated, and
+   NEITHER consented office photograph was used: office-tour_3 is a waiting room and _6 is an
+   equipment cabinet, both low-resolution interior snapshots, and a dated JPEG behind a conditions
+   index reads worse than the flat band it replaces. Provenance beats filling a slot.
+   What ships instead is authored from the sheet's OWN tokens: a two-stop bronze bloom off the
+   top-left, a stone falloff to the lower right, and the same swept arc geometry the band edges
+   already use, enlarged to a watermark. It is a real treatment, not a placeholder grey.
+   TO SWAP IN THE GENERATED IMAGE: set --find-bg-image to a url() and the washes stay as the
+   scrim that keeps the copy at contrast. Nothing else changes. */
+#find {
+  --find-bg-image: none;
+  position: relative;
+  isolation: isolate;
+  background-color: var(--ds-bg-warm);
+  background-image:
+    var(--find-bg-image),
+    radial-gradient(78% 96% at 4% 0%,  rgba(130, 99, 56, .17) 0%, rgba(130, 99, 56, 0) 62%),
+    radial-gradient(64% 82% at 100% 108%, rgba(92, 67, 34, .13) 0%, rgba(92, 67, 34, 0) 58%),
+    linear-gradient(168deg, rgba(247, 245, 240, .72) 0%, rgba(239, 235, 225, 0) 46%);
+  background-size: cover, auto, auto, auto;
+  background-position: center, center, center, center;
+  background-repeat: no-repeat;
+}
+/* the watermark arc - the band's own edge motif, scaled up and dropped to a whisper */
+/* inset is FLUSH, never negative. A -8% left/right bleed on a full-width section is 8% of the
+   VIEWPORT of horizontal document overflow at every width (measured: 115px at 1440, 96px at 1200,
+   82px at 1024, 61px at 768, 30px at 375 — exactly 8% each time). The section already spans the
+   full width, so there is nothing to bleed past and nothing to gain. */
+#find::before {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 68%;
+  z-index: -1; pointer-events: none; opacity: .5;
+  background: no-repeat bottom center / 100% 100%
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 420' preserveAspectRatio='none'%3E%3Cpath d='M0 420 C 300 180, 620 92, 1440 300 L1440 420 Z' fill='%23826338' fill-opacity='0.07'/%3E%3Cpath d='M0 420 C 360 236, 760 168, 1440 366 L1440 420 Z' fill='%235C4322' fill-opacity='0.06'/%3E%3C/svg%3E");
+}
+#find > * { position: relative; z-index: 1; }
+/* the band's own copy sits over the bloom, so the rails keep their ruled edge legible */
+#find .hub-rail { backdrop-filter: none; }
+@media (prefers-reduced-motion: no-preference) { #find { transition: background-color .2s linear; } }
+
+/* (15) THE FLOATING PORTRAIT IS NOW A REAL CUTOUT, SO THE HOVER CHANGES WITH IT.
+   Note 11 opened these two figures up (aspect-ratio:auto, overflow:visible, no card, no radius) and
+   put a two-stop drop-shadow on the IMG. A drop-shadow only reads as "floating" if it traces the
+   SILHOUETTE, and against a rectangular JPEG it traced the rectangle - so the matte matters:
+   assets/team_dr-cutout.webp is the consented team_dr photograph with the painted-wall background
+   removed locally (border-seeded flood over a saturation cut - the wall runs sat 3-11 and near-
+   neutral at every luminance it takes, skin runs 40-105 and the polo 72-87, so one threshold parts
+   all three; the flood is what preserves the white embroidery inside the shirt). Same photograph,
+   same consent record - only the ground is gone.
+   `.hover-zoom` scales the img 1.06 and relies on `overflow:hidden` to crop the growth. Note 11
+   made the figure overflow:visible, so that zoom would now push the head past its column. A cutout
+   that is already floating should RISE, not magnify. */
+.hub-portrait.hover-zoom.u-lift:hover img,
+.mrq-portrait.hover-zoom.u-lift:hover img {
+  transform: translateY(-6px);
+}
+.hub-portrait.hover-zoom.u-lift img,
+.mrq-portrait.hover-zoom.u-lift img {
+  transition: transform .45s var(--ds-ease-out), filter .45s var(--ds-ease-out);
+  will-change: transform;
+}
+.hub-portrait.hover-zoom.u-lift:hover img,
+.mrq-portrait.hover-zoom.u-lift:hover img {
+  filter:
+    drop-shadow(0 34px 46px rgba(20, 24, 19, .38))
+    drop-shadow(0 8px 16px rgba(20, 24, 19, .20));
+}
+/* u-lift raises the whole FIGURE on hover; with the cutout the shadow already does that work, so
+   the figure itself stays put and only the subject moves. Two lifts stacked read as a wobble. */
+.hub-portrait.hover-zoom.u-lift:hover,
+.mrq-portrait.hover-zoom.u-lift:hover { transform: none; }

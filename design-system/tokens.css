@@ -156,7 +156,11 @@
   --ds-space-lg:  40px;
   --ds-space-xl:  64px;
   --ds-space-2xl: 96px;
-  --ds-section-py:    clamp(56px, 8vw, 112px);
+  /* section rhythm. Was clamp(56px, 8vw, 112px) — 112px top AND bottom between every band, so a
+     40-page site read as a long ladder of gaps. Tightened ~28% at the top end; the floor drops less
+     because a phone needs proportionally more separation than a desktop. Every gate that measures
+     rhythm (G-CADENCE) reads this same token, so the cadence stays uniform, just closer. */
+  --ds-section-py:    clamp(44px, 6vw, 80px);
   --ds-container-max: 1120px;
 
   /* ---- MOTION: base 2 ---------------------------------------------------- */
