@@ -3211,3 +3211,15 @@ p { color: var(--ds-ink-soft); }
    because 84 vs 80 is Δ4, inside the 8px tolerance — the asymmetry was the visible half.
    Now reads the same two tokens as every other band, so it cannot drift from them again. */
 .art-open { padding-block: var(--sec-pad-top) var(--sec-pad-bottom); }
+
+/* (20) THE OPENING BAND KEEPS ITS TOP PADDING (owner, 2026-08-11).
+   The top padding was removed site-wide in note (base rule). The owner then asked for it back on
+   the FIRST section only: every other band butts straight onto the one above it, which is the
+   effect they wanted, but the opening band butts onto the site header, where 0 leading put the
+   breadcrumb hard against the nav (measured 0px box / ~14px optical).
+   Restored as `--sec-pad-top: var(--sec-pad-bottom)` rather than a literal, so the opener stays
+   symmetric and tracks the <=600 step automatically — the same discipline as notes 16 and 17,
+   where copying a value instead of reading the token cost two overflow regressions.
+   No arc is affected: verified that no page carries a band-edge arc in its FIRST section (there is
+   nothing above it to transition out of), so note 17's transform has nothing to cancel here. */
+main > section.sec:first-of-type { --sec-pad-top: var(--sec-pad-bottom); }
