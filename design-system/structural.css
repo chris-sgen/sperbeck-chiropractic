@@ -3255,3 +3255,42 @@ p { color: var(--ds-ink-soft); }
    No arc is affected: verified that no page carries a band-edge arc in its FIRST section (there is
    nothing above it to transition out of), so note 17's transform has nothing to cancel here. */
 main > section.sec:first-of-type { --sec-pad-top: var(--sec-pad-bottom); }
+
+/* (21) THE HERO PORTRAIT STANDS IN THE BAND INSTEAD OF BEING PASTED ON IT.
+   Owner, 2026-08-11: "make use of the whole space ... it has a lot of white spaces. also make it
+   more natural, it looks like it was paste in a board."
+   Both were measurable. The portrait column renders 359x704 and the figure was 359x353 — the
+   subject used HALF the column and left 351px of empty band beneath it. And the matte ends in a
+   hard horizontal line at the chest, which with a drop-shadow under it is precisely what a sticker
+   looks like: a silhouette lying ON the surface rather than a person standing IN it.
+   THE FIX IS THE MASK, not the crop. Bottom-anchor the figure, oversize it past its column, and
+   dissolve the torso into the band with a linear mask so the cut edge is never seen. A crop-to-fill
+   was tried and rejected: it fills the space but shears the shoulders and the embroidered
+   "Sperbeck Chiropractic", turning a plate about the practice into a face close-up.
+   The drop-shadow from note 11 goes with it — a shadow under a cutout is the other half of the
+   pasted look, and against this dark ground it was invisible anyway.
+   OVERSCALE IS FENCED. 140% of the column is safe only while the hero is a grid: the text column
+   ends at x=899 and this starts at ~845 of a column beginning at 921, clearing the copy. At <=600
+   `.g-3` collapses to one column, so 140% would be 40% of the VIEWPORT of horizontal overflow —
+   the exact regression notes 14 and 16 cost. Below the stack the portrait returns to 100% and the
+   mask goes with it, because a full-width portrait has no band beside it to dissolve into. */
+@media (min-width: 601px) {
+  .hub-portrait.hover-zoom.u-lift {
+    align-self: stretch;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: visible;
+  }
+  .hub-portrait.hover-zoom.u-lift img {
+    width: 140%;
+    height: auto;
+    max-width: none;
+    object-fit: contain;
+    filter: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
+  }
+  /* the hover rise still applies; it just moves a masked figure now */
+  .hub-portrait.hover-zoom.u-lift:hover img { transform: translateY(-6px); filter: none; }
+}
