@@ -3092,18 +3092,17 @@ p { color: var(--ds-ink-soft); }
      are stacked over it: a stone veil that carries most of the muting, plus the two bronze blooms
      that tie the frame to the palette. Raise the veil's alpha, not the image's, if a future
      generation comes back busier than this one. */
-  /* VEIL DROPPED 0.90 -> 0.50 (owner, 2026-08-11: the band still read as plain). At 0.90 barely a
-     tenth of the ground showed, and the image under it had itself been prompted "extremely pale"
-     BECAUSE it was going under a heavy veil — the two compounded into a flat band. The ground is
-     now toned into the palette at source (see the imagery note) so the veil only has to protect
-     the copy, not hide the picture. */
+  /* THE STONE VEIL IS GONE (owner, 2026-08-11: "remove or make it transparent so that it will have
+     a background image"). It went 0.90 -> 0.50 -> removed. The ground now paints at full strength.
+     The two bronze blooms are KEPT deliberately: at .10/.12 they tint rather than wash, they cost
+     nothing measurable (worst text is 5.52:1 with them and 5.52:1 without), and they tie a
+     generated ground to the brand palette. Nothing here hides the image. */
   background-image:
-    linear-gradient(168deg, rgba(247, 245, 240, .50) 0%, rgba(243, 240, 232, .40) 46%, rgba(239, 235, 225, .32) 100%),
     radial-gradient(78% 96% at 4% 0%,  rgba(130, 99, 56, .10) 0%, rgba(130, 99, 56, 0) 62%),
     radial-gradient(64% 82% at 100% 108%, rgba(92, 67, 34, .12) 0%, rgba(92, 67, 34, 0) 58%),
     var(--find-bg-image);
-  background-size: auto, auto, auto, cover;
-  background-position: center, center, center, center;
+  background-size: auto, auto, cover;
+  background-position: center, center, center;
   background-repeat: no-repeat;
 }
 /* A TEXTURED GROUND GETS FULL-STRENGTH TEXT, NOT TINTED TEXT.
@@ -3112,13 +3111,15 @@ p { color: var(--ds-ink-soft); }
    is 5.0:1, both a whisker over the 4.5 floor. Any visible texture therefore pushes them under:
    sampling the real composited pixels behind each glyph run gave 3.3:1 for the eyebrows and
    3.88:1 for the lead. Tinted type is a flat-ground luxury.
-   With the eyebrows on `--ds-accent-ink` and the body at full `--ds-ink`, the worst text in the
-   band measures 4.91:1 — a +0.41 margin over AA. The 0.35 veil also passed, at +0.03, which is
-   not a margin, so 0.50 ships.
+   WITH THE VEIL REMOVED the eyebrows go all the way to `--ds-ink`. Measured on the bare ground:
+   `--ds-accent-ink` gave 3.85:1 (a FAIL) and full ink gives 5.52:1, a +1.02 margin. The eyebrow
+   keeps its mono/tracked/uppercase treatment — only the colour changes — so the label still reads
+   as a label; it just no longer relies on a tint that the ground eats. Losing the bronze on two
+   small eyebrows is the price of showing the picture, and it is the cheaper of the two.
    ⚠ WHY THIS WAS MEASURED BY PIXEL AND NOT BY THE GATE: the build's paint-stack walker reasons
    from CSS colours and cannot see a background IMAGE at all (it reported this band clean at every
    breakpoint while the eyebrows sat at 3.3:1). Over imagery, sample the pixels. */
-#find .hub-group-h { color: var(--ds-accent-ink); }
+#find .hub-group-h { color: var(--ds-ink); }
 #find .lead, #find p { color: var(--ds-ink); }
 /* the watermark arc - the band's own edge motif, scaled up and dropped to a whisper */
 /* inset is FLUSH, never negative. A -8% left/right bleed on a full-width section is 8% of the
