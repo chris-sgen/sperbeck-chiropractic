@@ -203,7 +203,12 @@
   --ds-grid:         linear-gradient(rgba(130,99,56,.09) 1px, transparent 1px),
                      linear-gradient(90deg, rgba(130,99,56,.09) 1px, transparent 1px);
   --ds-grid-size:    44px 44px;
-  --ds-divider-h:    80px;
+  /* Band-edge divider depth. Was 80px, which at 1440 wide bowed hard enough to read as a SHAPE
+     sitting on the seam rather than as the edge of the band. Taken to 24px on the owner's note
+     that the separator looked awkward and should be a plain section divider: the same swept motif
+     survives, but as a quiet bow on an otherwise straight seam. This is the whole control — every
+     one of the 136 arcs sizes from it, so the treatment can be dialled from here alone. */
+  --ds-divider-h:    24px;
   --ds-icon-tint:    brightness(0) saturate(100%) invert(44%) sepia(28%) saturate(760%)
                      hue-rotate(2deg) brightness(93%) contrast(88%);
 

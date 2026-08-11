@@ -80,7 +80,12 @@ a { color: inherit; text-decoration: none; }
 /* --sec-pad-x is the band's horizontal gutter, published as a token so anything that needs to
    BLEED past it (the band-edge arcs — see note 16) can cancel exactly the current value instead of
    hardcoding a literal that silently drifts at a breakpoint. The <=600 rule below re-declares it. */
-.sec  { --sec-pad-x: 24px; padding: var(--ds-section-py) var(--sec-pad-x); }
+/* TOP PADDING REMOVED on the owner's instruction 2026-08-10 ("remove the top padding in every
+   section"). --sec-pad-top is kept as a real token rather than deleted, because the band-edge arc
+   cancels it (note 17) — if the two are not read from the same place they drift, and an arc that
+   cancels padding the section no longer pays would ride up OUT of its band into the one above. */
+.sec  { --sec-pad-x: 24px; --sec-pad-top: 0px; --sec-pad-bottom: var(--ds-section-py);
+        padding: var(--sec-pad-top) var(--sec-pad-x) var(--sec-pad-bottom); }
 .wrap { max-width: var(--ds-container-max); margin-inline: auto; }
 .readw { max-width: 720px; }
 .sec--warm { background: var(--ds-bg-warm); }
@@ -703,7 +708,8 @@ p { color: var(--ds-ink-soft); }
   .bw-stat__n { font-size: clamp(40px,12vw,60px); }            /* in-section: stays LARGE on mobile */
   .bw-statband--big .bw-stat__n { font-size: clamp(44px,13vw,68px); }  /* anchor band: even larger */
 }
-@media (max-width: 600px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } .sec { --sec-pad-x: 20px; padding: clamp(44px,12vw,72px) var(--sec-pad-x); } }
+@media (max-width: 600px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } .sec { --sec-pad-x: 20px; --sec-pad-top: 0px; --sec-pad-bottom: clamp(44px,12vw,72px);
+    padding: var(--sec-pad-top) var(--sec-pad-x) var(--sec-pad-bottom); } }
 
 /* ============================================================================
    STICKY-CTA COMPACT TREATMENT — the mobile fixed bottom CTA bar stays COMPACT.
@@ -3059,19 +3065,27 @@ p { color: var(--ds-ink-soft); }
    What ships instead is authored from the sheet's OWN tokens: a two-stop bronze bloom off the
    top-left, a stone falloff to the lower right, and the same swept arc geometry the band edges
    already use, enlarged to a watermark. It is a real treatment, not a placeholder grey.
-   TO SWAP IN THE GENERATED IMAGE: set --find-bg-image to a url() and the washes stay as the
-   scrim that keeps the copy at contrast. Nothing else changes. */
+   RESOLVED 2026-08-10: the owner supplied a fal key and the generated ground now ships as
+   assets/find-your-pain-bg.jpg, wired through --find-bg-image below. The authored washes remain,
+   stacked OVER it as the scrim that keeps the copy at contrast — see the layer-order note. */
 #find {
-  --find-bg-image: none;
+  --find-bg-image: url("../assets/find-your-pain-bg.jpg");
   position: relative;
   isolation: isolate;
   background-color: var(--ds-bg-warm);
+  /* LAYER ORDER IS LOAD-BEARING: in `background-image` the FIRST layer is the one nearest the
+     viewer. The first cut of this rule listed --find-bg-image first, which put the photograph ON
+     TOP of the washes — so they sat uselessly behind it and the copy had no scrim at all, the
+     opposite of what the note claimed. The image is now LAST (furthest back) and the three washes
+     are stacked over it: a stone veil that carries most of the muting, plus the two bronze blooms
+     that tie the frame to the palette. Raise the veil's alpha, not the image's, if a future
+     generation comes back busier than this one. */
   background-image:
-    var(--find-bg-image),
-    radial-gradient(78% 96% at 4% 0%,  rgba(130, 99, 56, .17) 0%, rgba(130, 99, 56, 0) 62%),
-    radial-gradient(64% 82% at 100% 108%, rgba(92, 67, 34, .13) 0%, rgba(92, 67, 34, 0) 58%),
-    linear-gradient(168deg, rgba(247, 245, 240, .72) 0%, rgba(239, 235, 225, 0) 46%);
-  background-size: cover, auto, auto, auto;
+    linear-gradient(168deg, rgba(247, 245, 240, .90) 0%, rgba(243, 240, 232, .78) 46%, rgba(239, 235, 225, .70) 100%),
+    radial-gradient(78% 96% at 4% 0%,  rgba(130, 99, 56, .10) 0%, rgba(130, 99, 56, 0) 62%),
+    radial-gradient(64% 82% at 100% 108%, rgba(92, 67, 34, .12) 0%, rgba(92, 67, 34, 0) 58%),
+    var(--find-bg-image);
+  background-size: auto, auto, auto, cover;
   background-position: center, center, center, center;
   background-repeat: no-repeat;
 }
@@ -3146,3 +3160,54 @@ p { color: var(--ds-ink-soft); }
 .sec > .container--full > .row > .col > .mrq-arc,
 .sec > .container--full > .row > .col > .prc-arc,
 .sec > .container--full > .row > .col > .svc-arc { margin-inline: calc(-1 * var(--sec-pad-x)); }
+
+/* (17) THE BAND-EDGE ARC MUST TOUCH THE SEAM IT DIVIDES.
+   Measured at the #patients seam, 1440: the previous band ends at 2977, the new section starts at
+   2977 — and the arc started at 3057. Exactly 80px lower, which is the section's own padding-top.
+   So the arc was floating in the middle of the new band's top padding, detached from the band it
+   is meant to continue out of, and it read as a stray dark crescent below a light gap rather than
+   as a transition. That is what made the separator look wrong; the SHAPE was never the problem.
+   The sheet already knew the answer and applied it exactly once, to `.art-mech .art-arc`. It was
+   never generalised, so 135 of the 136 arcs on this site were detached.
+   TRANSFORM, NOT MARGIN. A negative margin would also pull every following row up by the same
+   80px, shortening every banded section and changing the leading that G-CADENCE measures against
+   the outermost layout object. A transform moves the paint and touches no layout at all, so the
+   fix is purely visual and cannot perturb rhythm, density or overflow.
+   IT CANCELS --sec-pad-top, NOT --ds-section-py. Those two are NOT the same number: the <=600 rule
+   pays clamp(44px,12vw,72px) while --ds-section-py is clamp(44px,6vw,80px), which differ by 28px
+   at 600. Cancelling the token the padding actually uses is the only version that stays flush at
+   every width — the same trap as the arcs' horizontal bleed in note 16. */
+.sec > .container--full > .row > .col > .art-arc,
+.sec > .container--full > .row > .col > .cnt-arc,
+.sec > .container--full > .row > .col > .hub-arc,
+.sec > .container--full > .row > .col > .mrq-arc,
+.sec > .container--full > .row > .col > .prc-arc,
+.sec > .container--full > .row > .col > .svc-arc {
+  transform: translateY(calc(-1 * var(--sec-pad-top)));
+}
+/* the one band that already pulled itself up by margin must not now do it twice */
+.art-mech .art-arc { margin-block-start: 0; }
+
+/* (18) THE CONTACT OPENER SIZES TO ITS CONTENT, LIKE EVERY OTHER OPENER ON THE SITE.
+   `.cnt-open--band` was the only opening band with `min-height: 50vh` + `align-items: center`.
+   While every section paid a symmetric 80/80 that was invisible: the flex centring split the
+   leftover height evenly, so leading and trailing stayed equal. With the top padding removed
+   (owner, 2026-08-11) the centring survives and puts 71px above the content while every other
+   band on the site leads at 0 — measured at 1440: contact §0 [71/151] against §1-3 [0/80]. It is
+   the one band that now leads differently from the rest of the site.
+   Fixed here rather than by widening the cadence gate's hero exemption: the gate is shared by
+   every build, `.cnt-open--band` is this client's own rule, and the other five opener types
+   (hub/mrq/art/svc/prc-open) already size to content — so this makes contact consistent with them
+   instead of quietly reducing coverage for everyone. */
+.cnt-open--band { min-height: 0; display: block; }
+.cnt-open--band > .container { width: 100%; }
+
+/* (19) THE ARTICLE OPENER PAYS THE SITE'S SECTION RHYTHM, NOT ITS OWN.
+   `.art-open` carried `padding-block: clamp(44px, 6vw, 84px)` — its own vertical rhythm, one
+   clamp step wider than the site's at the top end (84 vs 80). Same specificity as `.sec` and
+   later in the source, so it won, and the top padding removal (owner, 2026-08-11) never reached
+   it: measured §0 leading 84/46/44 at 1440/768/375 while every other band on those pages led at 0.
+   That blocked all 22 article pages on the amended cadence rule. Its TRAILING slipped through only
+   because 84 vs 80 is Δ4, inside the 8px tolerance — the asymmetry was the visible half.
+   Now reads the same two tokens as every other band, so it cannot drift from them again. */
+.art-open { padding-block: var(--sec-pad-top) var(--sec-pad-bottom); }
