@@ -3313,3 +3313,25 @@ main > section.sec:first-of-type { --sec-pad-top: var(--sec-pad-bottom); }
    80px on TOP of the existing arc inset on the three pages that already read correctly.
    `data-cadence-lead="own"` on the same element is the paired G-CADENCE marker — see the gate. */
 #supporting-care { --sec-pad-top: var(--sec-pad-bottom); }
+
+/* (23) A LEAD QUOTE DIRECTLY UNDER A HEADING GETS THE HEADING ITS SPACE (owner, 2026-08-12).
+   Owner: "in the text What three local medical doctors say add margin bottom so that it will have
+   space below on all pages."
+   `.svc-quote--lead` carries `margin-block-end: 18px` and NO block-start, so it only ever looked
+   right where something else happened to supply the gap. Measured at 1440:
+     conditions          17px above — it follows a <p>, whose own bottom margin pays for it
+     reviews             n/a        — it is the first child, so the container padding pays
+     index               0px        — it follows an h2, whose margin-bottom is 0
+     dr-sperbeck         0px        — same
+     chiropractic-care   0px        — same ("What low-force means")
+   Every other object type following an h2 on these pages brings its own leading: p.lead 21px,
+   ol.mrq-steps / ul.mrq-includes / div.hub-quotes 24px. The lead quote was the only one bringing
+   nothing, so the heading's descenders sat on the card's top border.
+   THE GAP GOES ON THE QUOTE, NOT THE HEADING. Adjacent-sibling margins collapse, so `h2` bottom 24
+   and quote top 24 render identically — but this sheet's grammar is uniformly that the FOLLOWER
+   owns the gap (every value listed above is a margin-TOP), `h2 { margin-block-end: 0 }` is
+   site-wide, and a margin-bottom on the heading would need `:has()` to avoid hitting every h2 on
+   the site. Same pixels, one less special case.
+   24px = --ds-space-md, the same value ol/ul/.hub-quotes already use after a heading, so the band
+   reads: heading -> 24 -> lead quote -> 22 -> quotes grid. */
+h2 + .svc-quote--lead { margin-block-start: var(--ds-space-md); }
