@@ -3335,3 +3335,32 @@ main > section.sec:first-of-type { --sec-pad-top: var(--sec-pad-bottom); }
    24px = --ds-space-md, the same value ol/ul/.hub-quotes already use after a heading, so the band
    reads: heading -> 24 -> lead quote -> 22 -> quotes grid. */
 h2 + .svc-quote--lead { margin-block-start: var(--ds-space-md); }
+
+/* (24) THE LAST THREE HEADINGS THAT SAT FLUSH ON WHAT FOLLOWED (owner, 2026-08-12).
+   Owner: "fix the svc-statement one too" -> then, shown the full sweep, "all 4 h2 cases".
+   A sweep of all 40 pages at 1440 (every h1/h2/h3 vs its next in-flow sibling, gap <= 8px) found
+   exactly four flush pairs at the h2 level once note 23 had landed:
+     h2 -> p.svc-statement   0px   index, dr-sperbeck        <- the worst: both blocks are display
+                                                                serif, so they read as ONE paragraph
+     h2 -> p                 0px   dr-sperbeck "Book a visit"
+     h2 -> address           0px   new-patient-special "The Tracy office"
+   Each is a container rule zeroing the follower's top margin: `.svc-statement { margin: 0 0 20px }`,
+   `.mrq-next p { margin: 0 0 14px }`, `.mrq-where address { margin: 0 0 var(--ds-space-md) }`.
+
+   THE SELECTORS ARE CONTAINER-QUALIFIED FOR SPECIFICITY, NOT FOR TASTE. `h2 + p` is (0,0,2) — two
+   element selectors, no class — so `.mrq-next p` at (0,1,1) beats it no matter how late it appears
+   in the file. Source order cannot fix a class-vs-element loss. `.mrq-next h2 + p` is (0,2,2) and
+   wins honestly. `h2 + .svc-statement` is already (0,1,1) vs `.svc-statement` (0,1,0), so that one
+   needs no qualifier.
+
+   21px, NOT the 24px token, on the two paragraph-ish blocks. Every `p.lead` on this site sits 21px
+   under its heading — and that 21 is the BROWSER DEFAULT `margin-block: 1em` on a 21px font, not a
+   designed value; the sheet never sets it. Matching it deliberately means a bare paragraph and a
+   lead paragraph sit identically under a heading. The statement block takes --ds-space-md (24px)
+   because it is a display-type object, like the quote in note 23 and the ol/ul/dl already at 24.
+   Normalising all of it to 24 was measured and rejected: it moves 59 further pairs the owner did
+   not ask about (50 p.lead 21->24, 9 bare p 17->24). Scoped this way the sweep reports 4 of 106
+   h2 pairs changing, which is exactly the four defects. */
+.mrq-next h2 + p        { margin-block-start: 21px; }
+.mrq-where h2 + address { margin-block-start: 21px; }
+h2 + .svc-statement     { margin-block-start: var(--ds-space-md); }
