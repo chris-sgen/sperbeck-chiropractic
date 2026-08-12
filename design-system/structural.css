@@ -3288,9 +3288,28 @@ main > section.sec:first-of-type { --sec-pad-top: var(--sec-pad-bottom); }
     max-width: none;
     object-fit: contain;
     filter: none;
-    -webkit-mask-image: linear-gradient(to bottom, #000 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
+    /* rgba(), not #000: a structural sheet may carry no hex literal (G8 brand-hex isolation), and a
+       mask gradient reads only the ALPHA channel, so this is byte-for-byte the same render. */
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 66%, rgba(0, 0, 0, .5) 87%, transparent 100%);
   }
   /* the hover rise still applies; it just moves a masked figure now */
   .hub-portrait.hover-zoom.u-lift:hover img { transform: translateY(-6px); filter: none; }
 }
+
+/* (22) THE SERVICES "SUPPORTING CARE" BAND SUPPLIES ITS OWN LEADING (owner, 2026-08-12).
+   Owner: "in services page add top padding in supporting care section to balance the section."
+   THE DEFECT WAS NOT "no padding" — every band has had 0 top padding since 2026-08-11 by owner
+   instruction, and the other six on this page look right. It is that this band is the only one on
+   services.html that CHANGES BACKGROUND COLOUR without carrying a band-edge arc. Its four
+   colour-changing siblings get a 64px inset from the arc; measured at 1440, leading to the first
+   text ran §1 64 · §2 0 · §3 64 · §4 64 · §5 64. So all 80px of whitespace above "Supporting care"
+   is painted in the WARM band's colour and belongs to it, and the new band opens with its heading
+   sitting on the colour step. Verified this is services-only: the same .hub-events band measures
+   64-71 on conditions, new-patients and reviews, because there it carries an arc.
+   Read from --sec-pad-bottom rather than a literal 80px, the same discipline as notes 16/17/20, so
+   the band stays symmetric and tracks the <=600 step (80/80 at 1440, 46/46 at 768, 45/45 at 375)
+   without a second value to keep in sync. The ID scope is deliberate: `.hub-events` alone would add
+   80px on TOP of the existing arc inset on the three pages that already read correctly.
+   `data-cadence-lead="own"` on the same element is the paired G-CADENCE marker — see the gate. */
+#supporting-care { --sec-pad-top: var(--sec-pad-bottom); }
